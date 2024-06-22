@@ -1,0 +1,206 @@
+class Course:
+    def __init__(self, course_name, course_code, max_students):
+        self.course_name = course_name
+        self.course_code = course_code
+        self.max_students = max_students
+        self.enrolled_students = []
+
+    def add_student(self, student):
+        if len(self.enrolled_students) < self.max_students:
+            self.enrolled_students.append(student)
+            student.zapisz_na_kurs(self)
+            print(f"Student {student.name} enrolled in {self.course_name}.")
+        else:
+            print(f"Course {self.course_name} is full.")
+
+    def remove_student(self, student):
+        if student in self.enrolled_students:
+            self.enrolled_students.remove(student)
+            student.wypisz_z_kursu(self)
+            print(f"Student {student.name} removed from {self.course_name}.")
+        else:
+            print(f"Student {student.name} is not enrolled in {self.course_name}.")
+
+    def list(self):
+        return f"{self.course_name} ({self.course_code})"
+
+
+class Student:
+    def __init__(self, name, student_id):
+        self.name = name
+        self.student_id = student_id
+        self.enrolled_courses = []
+
+    def zapisz_na_kurs(self, course):
+        if course not in self.enrolled_courses:
+            self.enrolled_courses.append(course)
+
+    def wypisz_z_kursu(self, course):
+        if course in self.enrolled_courses:
+            self.enrolled_courses.remove(course)
+
+    def __str__(self):
+        return f"{self.name} (ID: {self.student_id})"
+
+
+class University:
+    def __init__(self):
+        self.courses = []
+        self.students = []
+
+    def add_course(self, course):
+        if course.course_code not in [c.course_code for c in self.courses]:
+            self.courses.append(course)
+            print(f"Course {course.course_name} added.")
+        else:
+            print(f"Course code {course.course_code} already exists.")
+
+    def remove_course(self, course_code):
+        course = next((c for c in self.courses if c.course_code == course_code), None)
+        if course:
+            self.courses.remove(course)
+            print(f"Course {course.course_name} removed.")
+        else:
+            print(f"Course code {course_code} not found.")
+
+    def register_student(self, student):
+        if student.student_id not in [s.student_id for s in self.students]:
+            self.students.append(student)
+            print(f"Student {student.name} registered.")
+        else:
+            print(f"Student ID {student.student_id} already exists.")
+
+    def unregister_student(self, student_id):
+        student = next((s for s in self.students if s.student_id == student_id), None)
+        if student:
+            self.students.remove(student)
+            print(f"Student {student.name} unregistered.")
+        else:
+            print(f"Student ID {student_id} not found.")
+
+    def find_course_by_name(self, course_name):
+        found_courses = [course for course in self.courses if course.course_name == course_name]
+        if found_courses:
+            for course in found_courses:
+                print(course.list())
+        else:
+            print(f"No courses found with the name '{course_name}'.")
+
+    def find_courses_by_student(self, student_id):
+        student = next((s for s in self.students if s.student_id == student_id), None)
+        if student:
+            for course in student.enrolled_courses:
+                print(course.list())
+        else:
+            print(f"No student found with ID '{student_id}'.")
+
+    def display_all_courses(self):
+        for course in self.courses:
+            print(course.list())
+
+    def display_all_students(self):
+        for student in self.students:
+            print(student)
+
+
+def main():
+    university = University()
+
+    def add_course():
+        course_name = input("Enter course name: ")
+        course_code = input("Enter course code: ")
+        max_students = int(input("Enter max number of students: "))
+        course = Course(course_name, course_code, max_students)
+        university.add_course(course)
+
+    def remove_course():
+        course_code = input("Enter course code to remove: ")
+        university.remove_course(course_code)
+
+    def register_student():
+        name = input("Enter student name: ")
+        student_id = input("Enter student ID: ")
+        student = Student(name, student_id)
+        university.register_student(student)
+
+    def unregister_student():
+        student_id = input("Enter student ID to unregister: ")
+        university.unregister_student(student_id)
+
+    def enroll_student_in_course():
+        student_id = input("Enter student ID: ")
+        course_code = input("Enter course code: ")
+        student = next((s for s in university.students if s.student_id == student_id), None)
+        course = next((c for c in university.courses if c.course_code == course_code), None)
+        if student and course:
+            course.add_student(student)
+        else:
+            print("Invalid student ID or course code.")
+
+    def remove_student_from_course():
+        student_id = input("Enter student ID: ")
+        course_code = input("Enter course code: ")
+        student = next((s for s in university.students if s.student_id == student_id), None)
+        course = next((c for c in university.courses if c.course_code == course_code), None)
+        if student and course:
+            course.remove_student(student)
+        else:
+            print("Invalid student ID or course code.")
+
+    def find_course_by_name():
+        course_name = input("Enter course name: ")
+        university.find_course_by_name(course_name)
+
+    def find_courses_by_student():
+        student_id = input("Enter student ID: ")
+        university.find_courses_by_student(student_id)
+
+    def display_all_courses():
+        university.display_all_courses()
+
+    def display_all_students():
+        university.display_all_students()
+
+    def exit_program():
+        nonlocal running
+        running = False
+
+    actions = {
+        '1': add_course,
+        '2': remove_course,
+        '3': register_student,
+        '4': unregister_student,
+        '5': enroll_student_in_course,
+        '6': remove_student_from_course,
+        '7': find_course_by_name,
+        '8': find_courses_by_student,
+        '9': display_all_courses,
+        '10': display_all_students,
+        '11': exit_program
+    }
+
+    running = True
+    while running:
+        print("\nUniversity Management System")
+        print("1. Add Course")
+        print("2. Remove Course")
+        print("3. Register Student")
+        print("4. Unregister Student")
+        print("5. Enroll Student in Course")
+        print("6. Remove Student from Course")
+        print("7. Find Course by Name")
+        print("8. Find Courses by Student")
+        print("9. Display All Courses")
+        print("10. Display All Students")
+        print("11. Exit")
+
+        choice = input("Enter your choice: ")
+
+        action = actions.get(choice)
+        if action:
+            action()
+        else:
+            print("Invalid choice. Please try again.")
+
+if __name__ == "__main__":
+    main()
